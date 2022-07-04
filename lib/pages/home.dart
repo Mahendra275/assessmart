@@ -47,7 +47,7 @@ class _HomeState extends State<Home> {
               child: ListTile(
                 leading: const Icon(
                   Icons.login,
-                  color: Colors.deepPurpleAccent,
+                  color: Colors.green,
                 ),
                 title: const Text('Login'),
                 onTap: () {
@@ -66,6 +66,32 @@ class _HomeState extends State<Home> {
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.pushNamed(context, '/coding_lab');
+                },
+              ),
+            ),
+            Card(
+              child: ListTile(
+                leading: const Icon(
+                  Icons.app_registration_rounded,
+                  color: Colors.teal,
+                ),
+                title: const Text('Attendence Registration'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/register_attendence');
+                },
+              ),
+            ),
+            Card(
+              child: ListTile(
+                leading: const Icon(
+                  Icons.calendar_month,
+                  color: Colors.red,
+                ),
+                title: const Text('Attendence'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/attendence');
                 },
               ),
             ),

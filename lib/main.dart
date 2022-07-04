@@ -1,4 +1,6 @@
+import 'package:assessmart/pages/attendence.dart';
 import 'package:assessmart/pages/coding_lab.dart';
+import 'package:assessmart/pages/register_attendence.dart';
 import 'package:flutter/material.dart';
 import 'package:assessmart/pages/home.dart';
 import 'package:assessmart/pages/register.dart';
@@ -16,5 +18,7 @@ void main() {
         '/register': (context) => const Register(),
         '/login': (context) => const Login(),
         '/coding_lab': (context) => const CodingLab(),
+        '/attendence': (context) => const Attendence(),
+        '/register_attendence': (context) => const RegisterAttendence(),
       }));
 }

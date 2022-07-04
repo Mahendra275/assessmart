@@ -457,10 +457,12 @@ class _CodeEditorState extends State<CodeEditor> {
     super.initState();
     // Instantiate the CodeController
     _codeController = CodeController(
-      text: widget.source,
-      language: widget.language,
-      theme: widget.theme,
-    );
+        text: widget.source,
+        language: widget.language,
+        theme: widget.theme,
+        params: const EditorParams(
+          tabSpaces: 4,
+        ));
   }
 
   @override
@@ -469,6 +471,7 @@ class _CodeEditorState extends State<CodeEditor> {
     super.dispose();
   }
 
+  double fontsize = 14;
   @override
   Widget build(BuildContext context) {
     return Column(children: <Widget>[
@@ -477,9 +480,20 @@ class _CodeEditorState extends State<CodeEditor> {
       ),
       CodeField(
         controller: _codeController!,
-        textStyle: const TextStyle(fontFamily: 'SourceCode'),
+        textStyle: TextStyle(fontFamily: 'SourceCode', fontSize: fontsize),
         minLines: 10,
         maxLines: 20,
+      ),
+      FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            fontsize += 2;
+          });
+        },
+        child: const Icon(
+          Icons.text_increase,
+          color: Colors.blue,
+        ),
       )
     ]);
   }
