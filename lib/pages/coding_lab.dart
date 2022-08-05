@@ -5,7 +5,6 @@ import 'package:highlight/languages/all.dart';
 import 'package:flutter_highlight/themes/monokai-sublime.dart';
 import 'package:flutter_highlight/themes/vs.dart';
 import 'package:flutter/material.dart';
-import 'package:assessmart/pages/hover.dart';
 import 'dart:math';
 import 'package:highlight/src/mode.dart';
 
@@ -91,21 +90,10 @@ class _CodeBlockState extends State<CodeBlock> {
                     items: <String>['CSE', 'Student', 'Teacher']
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
-                        value: value,
-                        child: Center(
-                          child: OnHover(
-                            //Wraping the DropDownMenuItem child so then when Items of drop down is hovering we see hovering effect
-                            builder: (isHovered) {
-                              final color =
-                                  isHovered ? Colors.blue : Colors.black;
-                              return Text(
-                                value,
-                                style: TextStyle(color: color),
-                              );
-                            },
-                          ),
-                        ),
-                      );
+                          value: value,
+                          child: Center(
+                            child: Text(value),
+                          ));
                     }).toList(),
                     onChanged: (String? newValue) {
                       setState(() {
@@ -136,16 +124,8 @@ class _CodeBlockState extends State<CodeBlock> {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Center(
-                          child: OnHover(
-                            //Wraping the DropDownMenuItem child so then when Items of drop down is hovering we see hovering effect
-                            builder: (isHovered) {
-                              final color =
-                                  isHovered ? Colors.blue : Colors.black;
-                              return Text(
-                                value,
-                                style: TextStyle(color: color),
-                              );
-                            },
+                          child: Text(
+                            value,
                           ),
                         ),
                       );
@@ -184,20 +164,12 @@ class _CodeBlockState extends State<CodeBlock> {
                         items: <String>['CSE', 'Student', 'Teacher']
                             .map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
-                            value: value,
-                            child: Center(
-                              child: OnHover(
-                                builder: (isHovered) {
-                                  final color =
-                                      isHovered ? Colors.blue : Colors.black;
-                                  return Text(
-                                    value,
-                                    style: TextStyle(color: color),
-                                  );
-                                },
-                              ),
-                            ),
-                          );
+                              value: value,
+                              child: Center(
+                                child: Text(
+                                  value,
+                                ),
+                              ));
                         }).toList(),
                         onChanged: (String? newValue) {
                           setState(() {
@@ -226,21 +198,10 @@ class _CodeBlockState extends State<CodeBlock> {
                         items: <String>['DIP', 'CSE', 'Student', 'Teacher']
                             .map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
-                            value: value,
-                            child: Center(
-                              child: OnHover(
-                                //Wraping the DropDownMenuItem child so then when Items of drop down is hovering we see hovering effect
-                                builder: (isHovered) {
-                                  final color =
-                                      isHovered ? Colors.blue : Colors.black;
-                                  return Text(
-                                    value,
-                                    style: TextStyle(color: color),
-                                  );
-                                },
-                              ),
-                            ),
-                          );
+                              value: value,
+                              child: Center(
+                                child: Text(value),
+                              ));
                         }).toList(),
                         onChanged: (String? newValue) {
                           setState(() {

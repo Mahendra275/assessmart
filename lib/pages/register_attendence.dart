@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:async';
+import 'dart:io';
 import 'package:camera/camera.dart';
 
 class RegisterAttendence extends StatefulWidget {
@@ -89,6 +91,8 @@ class TakePictureScreenState extends State<TakePictureScreen> {
                     CameraScreen(camera: widget.camera),
                     CameraScreen(camera: widget.camera),
                     CameraScreen(camera: widget.camera),
+                    CameraScreen(camera: widget.camera),
+                    CameraScreen(camera: widget.camera),
                   ],
                 ),
               ),
@@ -161,8 +165,7 @@ class _CameraScreenState extends State<CameraScreen> {
     super.dispose();
   }
 
-  bool displayImage = false, takeImage = true;
-  late XFile img;
+  XFile? img;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -176,11 +179,8 @@ class _CameraScreenState extends State<CameraScreen> {
                 width: 1,
               ),
             ),
-            child: displayImage
-                ? Image.network(
-                    img.path,
-                    fit: BoxFit.fill,
-                  )
+            child: img != null
+                ? Image.network(img!.path)
                 : FutureBuilder<void>(
                     future: _initializeControllerFuture,
                     builder: (context, snapshot) {
@@ -198,44 +198,122 @@ class _CameraScreenState extends State<CameraScreen> {
         Flexible(
           flex: 1,
           child: Padding(
-            padding: const EdgeInsets.all(5),
-            child: takeImage
-                ? FloatingActionButton(
-                    elevation: 1,
-                    // Provide an onPressed callback.
-                    onPressed: () async {
-                      // Take the Picture in a try / catch block. If anything goes wrong,
-                      // catch the error.
-                      try {
-                        // Ensure that the camera is initialized.
-                        await _initializeControllerFuture;
+              padding: const EdgeInsets.all(5),
+              child: FloatingActionButton(
+                elevation: 1,
+                // Provide an onPressed callback.
+                onPressed: () async {
+                  // Take the Picture in a try / catch block. If anything goes wrong,
+                  // catch the error.
+                  try {
+                    // Ensure that the camera is initialized.
+                    await _initializeControllerFuture;
 
-                        // Attempt to take a picture and get the file `image`
-                        // where it was saved.
-                        img = await _controller.takePicture();
-                        // If the picture was taken, display it on a new screen.
-                        setState(() {
-                          displayImage = true;
-                          takeImage = false;
-                        });
-                      } catch (e) {
-                        // If an error occurs, log the error to the console.
-                        //print(e);
-                      }
-                    },
-                    child: const Icon(Icons.camera_alt),
-                  )
-                : ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        takeImage = true;
-                      });
-                    },
-                    child: const Text("Retake"),
-                  ),
-          ),
+                    // Attempt to take a picture and get the file `image`
+                    // where it was saved.
+                    img = await _controller.takePicture();
+
+                    if (!mounted) return;
+
+                    // If the picture was taken, display it on a new screen.
+
+                    img = await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => DisplayPictureScreen(
+                          // Pass the automatically generated path to
+                          // the DisplayPictureScreen widget.
+                          image: img,
+                        ),
+                      ),
+                    );
+                  } catch (e) {
+                    // If an error occurs, log the error to the console.
+                    //print(e);
+                  } finally {
+                    setState(() {});
+                  }
+                },
+                child: const Icon(Icons.camera_alt),
+              )),
         ),
       ],
+    );
+  }
+}
+
+class DisplayPictureScreen extends StatelessWidget {
+  final XFile? image;
+
+  const DisplayPictureScreen({super.key, required this.image});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.lime,
+        title: const Text("ATTENDENCE REGISTRATION"),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(4),
+        child: Column(
+          crossAxisAlignment:
+              CrossAxisAlignment.center, //Center Column contents vertically,
+          children: <Widget>[
+            Flexible(
+              flex: 5,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.green,
+                    width: 1,
+                  ),
+                ),
+                width: 600,
+                child: kIsWeb
+                    ? Image.network(image!.path)
+                    : Image.file(File(image!.path)),
+              ),
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            Flexible(
+              flex: 2,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  FloatingActionButton(
+                    // Provide an onPressed callback.
+                    heroTag: 'retake',
+                    onPressed: () {
+                      Navigator.pop(context, null);
+                    },
+                    backgroundColor: Colors.purple,
+                    child: const Icon(
+                      Icons.refresh_sharp,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  FloatingActionButton(
+                    // Provide an onPressed callback.
+                    heroTag: 'done',
+                    onPressed: () {
+                      Navigator.pop(context, image);
+                    },
+                    backgroundColor: Colors.green,
+                    child: const Icon(
+                      Icons.check,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

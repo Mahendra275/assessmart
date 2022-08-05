@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:assessmart/pages/hover.dart';
 import 'dart:math';
 
 class Register extends StatefulWidget {
@@ -143,17 +142,7 @@ class RegistrationFormState extends State<RegistrationForm> {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Center(
-                            child: OnHover(
-                              //Wraping the DropDownMenuItem child so then when Items of drop down is hovering we see hovering effect
-                              builder: (isHovered) {
-                                final color =
-                                    isHovered ? Colors.blue : Colors.black;
-                                return Text(
-                                  value,
-                                  style: TextStyle(color: color),
-                                );
-                              },
-                            ),
+                            child: Text(value),
                           ),
                         );
                       }).toList(),
@@ -198,17 +187,7 @@ class RegistrationFormState extends State<RegistrationForm> {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Center(
-                            child: OnHover(
-                              //Wraping the DropDownMenuItem child so then when Items of drop down is hovering we see hovering effect
-                              builder: (isHovered) {
-                                final color =
-                                    isHovered ? Colors.blue : Colors.black;
-                                return Text(
-                                  value,
-                                  style: TextStyle(color: color),
-                                );
-                              },
-                            ),
+                            child: Text(value),
                           ),
                         );
                       }).toList(),
@@ -272,17 +251,7 @@ class RegistrationFormState extends State<RegistrationForm> {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Center(
-                            child: OnHover(
-                              //Wraping the DropDownMenuItem child so then when Items of drop down is hovering we see hovering effect
-                              builder: (isHovered) {
-                                final color =
-                                    isHovered ? Colors.blue : Colors.black;
-                                return Text(
-                                  value,
-                                  style: TextStyle(color: color),
-                                );
-                              },
-                            ),
+                            child: Text(value),
                           ),
                         );
                       }).toList(),
