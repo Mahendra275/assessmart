@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:math';
+
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
+
+import 'package:assessmart/models/usermodel.dart';
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -49,9 +59,17 @@ class RegistrationFormState extends State<RegistrationForm> {
   //
   // Note: This is a GlobalKey<FormState>,
   // not a GlobalKey<MyCustomFormState>.
+  final userId = new TextEditingController();
+  final password = new TextEditingController();
+  final userName = new TextEditingController();
+  final department = new TextEditingController();
+  final email = new TextEditingController();
+  final SECTION = new TextEditingController();
+
   final _formKey = GlobalKey<FormState>();
   bool _isObscure = true;
-  String? role, section = 'Section 1', dept = 'CSE';
+  String? errorMessage;
+  String? role = 'Student', section = 'Section 1', dept = 'CSE';
   @override
   Widget build(BuildContext context) {
     var wth = MediaQuery.of(context).size.width;
@@ -74,6 +92,7 @@ class RegistrationFormState extends State<RegistrationForm> {
                   if (value == null || value.isEmpty) {
                     return 'Username/ID is required';
                   }
+                  userId.text = value;
                   return null;
                 },
               ),
@@ -99,6 +118,7 @@ class RegistrationFormState extends State<RegistrationForm> {
                   if (value == null || value.isEmpty) {
                     return 'Password is required';
                   }
+                  password.text = value;
                   return null;
                 },
               ),
@@ -115,6 +135,7 @@ class RegistrationFormState extends State<RegistrationForm> {
                   if (value == null || value.isEmpty) {
                     return 'Name is required';
                   }
+                  userName.text = value;
                   return null;
                 },
               ),
@@ -215,6 +236,11 @@ class RegistrationFormState extends State<RegistrationForm> {
                   if (value == null || value.isEmpty) {
                     return 'Email is required';
                   }
+                  if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
+                      .hasMatch(value)) {
+                    return ("Please Enter a valid email");
+                  }
+                  email.text = value;
                   return null;
                 },
               ),
@@ -282,6 +308,7 @@ class RegistrationFormState extends State<RegistrationForm> {
                             const SnackBar(content: Text('Processing Data')),
                           );
                         }
+                        signUp(email.text, password.text);
                       },
                       child: const Text('Sign Up'),
                     ),
@@ -314,5 +341,74 @@ class RegistrationFormState extends State<RegistrationForm> {
         ),
       ),
     );
+  }
+
+  void signUp(String email, String password) async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(email: email, password: password)
+            .then((value) => {postDetailsToFirestore()})
+            .catchError((e) {
+          Fluttertoast.showToast(msg: e!.message);
+        });
+      } on FirebaseAuthException catch (error) {
+        switch (error.code) {
+          case "invalid-email":
+            errorMessage = "Your email address appears to be malformed.";
+            break;
+          case "wrong-password":
+            errorMessage = "Your password is wrong.";
+            break;
+          case "user-not-found":
+            errorMessage = "User with this email doesn't exist.";
+            break;
+          case "user-disabled":
+            errorMessage = "User with this email has been disabled.";
+            break;
+          case "too-many-requests":
+            errorMessage = "Too many requests";
+            break;
+          case "operation-not-allowed":
+            errorMessage = "Signing in with Email and Password is not enabled.";
+            break;
+          default:
+            errorMessage = "An undefined Error happened.";
+        }
+        Fluttertoast.showToast(msg: errorMessage!);
+        print(error.code);
+      }
+    }
+  }
+
+  postDetailsToFirestore() async {
+    // calling our firestore
+    // calling our user model
+    // sedning these values
+
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    User? user = FirebaseAuth.instance.currentUser;
+
+    UserModel userModel = UserModel();
+
+    // writing all the values
+    userModel.email = user!.email;
+    userModel.uId = user.uid;
+    userModel.userId = userId.text;
+    userModel.password = password.text;
+    userModel.userName = userName.text;
+    userModel.department = dept;
+    userModel.email = email.text;
+    userModel.section = section;
+    userModel.role = role;
+
+    await firebaseFirestore
+        .collection("users")
+        .doc(user.email)
+        .set(userModel.toMap());
+    Fluttertoast.showToast(msg: "Account created successfully :) ");
+
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);
   }
 }

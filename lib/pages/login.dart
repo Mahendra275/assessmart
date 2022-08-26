@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -49,8 +51,13 @@ class LoginFormState extends State<LoginForm> {
   //
   // Note: This is a GlobalKey<FormState>,
   // not a GlobalKey<MyCustomFormState>.
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
   final _formKey = GlobalKey<FormState>();
   bool _isObscure = true;
+  String? errorMessage;
+
   @override
   Widget build(BuildContext context) {
     // Build a Form widget using the _formKey created above.
@@ -64,22 +71,49 @@ class LoginFormState extends State<LoginForm> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
+                autofocus: false,
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
                   icon: Icon(Icons.person),
-                  hintText: 'Enter your Username/ID',
-                  labelText: 'Username/ID *',
+                  hintText: 'Enter your Email',
+                  labelText: 'Email *',
                 ),
+                textInputAction: TextInputAction.next,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Username/ID is required';
+                  if (value!.isEmpty) {
+                    return ("Please Enter Your Email");
+                  }
+                  // reg expression for email validation
+                  if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
+                      .hasMatch(value)) {
+                    return ("Please Enter a valid email");
                   }
                   return null;
+                },
+                onSaved: (value) {
+                  emailController.text = value!;
                 },
               ),
               const SizedBox(
                 height: 20,
               ),
               TextFormField(
+                autofocus: false,
+                controller: passwordController,
+                validator: (value) {
+                  RegExp regex = new RegExp(r'^.{6,}$');
+                  if (value!.isEmpty) {
+                    return ("Password is required for login");
+                  }
+                  if (!regex.hasMatch(value)) {
+                    return ("Enter Valid Password(Min. 6 Character)");
+                  }
+                },
+                onSaved: (value) {
+                  passwordController.text = value!;
+                },
+                textInputAction: TextInputAction.done,
                 obscureText: _isObscure,
                 decoration: InputDecoration(
                   icon: const Icon(Icons.password),
@@ -94,12 +128,6 @@ class LoginFormState extends State<LoginForm> {
                         });
                       }),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Password is required';
-                  }
-                  return null;
-                },
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -119,6 +147,7 @@ class LoginFormState extends State<LoginForm> {
                               const SnackBar(content: Text('Processing Data')),
                             );
                           }
+                          signIn(emailController.text, passwordController.text);
                         },
                         child: const Text('Login'),
                       )),
@@ -165,5 +194,45 @@ class LoginFormState extends State<LoginForm> {
         ),
       ),
     );
+  }
+
+  // login function
+  void signIn(String email, String password) async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        await FirebaseAuth.instance
+            .signInWithEmailAndPassword(email: email, password: password)
+            .then((uid) => {
+                  Fluttertoast.showToast(msg: "Login Successful"),
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/home', (Route<dynamic> route) => false)
+                });
+      } on FirebaseAuthException catch (error) {
+        switch (error.code) {
+          case "invalid-email":
+            errorMessage = "Your email address appears to be malformed.";
+            break;
+          case "wrong-password":
+            errorMessage = "Your password is wrong.";
+            break;
+          case "user-not-found":
+            errorMessage = "User with this email doesn't exist.";
+            break;
+          case "user-disabled":
+            errorMessage = "User with this email has been disabled.";
+            break;
+          case "too-many-requests":
+            errorMessage = "Too many requests";
+            break;
+          case "operation-not-allowed":
+            errorMessage = "Signing in with Email and Password is not enabled.";
+            break;
+          default:
+            errorMessage = "Make sure You have network connection";
+        }
+        Fluttertoast.showToast(msg: errorMessage!);
+        print(error.code);
+      }
+    }
   }
 }
