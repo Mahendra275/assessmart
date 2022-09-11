@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:assessmart/pages/home.dart';
 import 'package:assessmart/pages/register.dart';
 import 'package:assessmart/pages/login.dart';
+import 'package:assessmart/pages/create_lab.dart';
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30,5 +31,6 @@ void main() async {
         '/coding_lab': (context) => const CodingLab(),
         '/attendence': (context) => const Attendence(),
         '/register_attendence': (context) => const RegisterAttendence(),
+        '/create_lab': ((context) => const CreateLab()),
       }));
 }

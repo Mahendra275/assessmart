@@ -159,9 +159,9 @@ class _CodeBlockState extends State<CodeBlock> {
                     items: <String>[
                       'DIP',
                       'DIP_Lab',
-                      'CSE',
-                      'Student',
-                      'Teacher'
+                      'DAA',
+                      'DAA_Lab',
+                      'Python'
                     ].map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -716,20 +716,32 @@ class _CodeEditorState extends State<CodeEditor> {
                   String? code = _codeController!.text;
                   String? input = _inputController.text;
                   code = code.replaceAll('·', ' ');
+                  User? user = FirebaseAuth.instance.currentUser;
+                  String? idno;
+                  print(user!.email);
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .where('email', isEqualTo: user.email)
+                      .get()
+                      .then((value) {
+                    value.docs.forEach((element) {
+                      idno = element['userId'];
+                    });
+                  });
+                  print(idno);
                   Uri url = Uri.https(
-                      'UpbeatPossibleCategories.n170275smahendr.repl.co',
-                      'run', {
+                      'IdealAutomaticGigabyte.n170275smahendr.repl.co', 'run', {
                     'code': code,
                     'stdin': input,
-                    'user': 'n170274',
-                    'lab': widget.lab,
+                    'user': idno,
                   });
                   // url += '?code=$code&stdin=$input';
                   var output = await run_code(url);
                   output = jsonDecode(output);
                   //print(output);
-                  _outputController.text = output['stdout'] + output['stderr'];
                   setState(() {
+                    _outputController.text =
+                        output['stdout'] + output['stderr'];
                     images.clear();
                     for (var img in output['images']) {
                       images.add(img);
